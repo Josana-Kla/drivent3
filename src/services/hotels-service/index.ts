@@ -40,16 +40,13 @@ async function getHotelById(userId: number, hotelId: string) {
   if (!ticket) {
     throw notFoundError();
   }
-
+  
   if(ticket.status === TicketStatus.RESERVED || ticket.TicketType.isRemote === true || ticket.    TicketType.includesHotel === false) {
     throw cannotFindAValidTicketToGetHotel();
   }
-
+  
   const roomsByHotelId = await hotelRepository.getHotelRoomsByHotelId(hotelIdNumber);
-  if (!roomsByHotelId) {
-    throw notFoundError();
-  }
-
+  
   return roomsByHotelId;
 }
 
