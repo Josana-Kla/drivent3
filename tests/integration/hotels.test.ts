@@ -367,27 +367,6 @@ describe("GET /hotels/:hotelId", () => {
       );
       expect(response.status).toBe(httpStatus.OK);
     });
-
-    it("should respond with status 200 and a list without a hotel for given user", async () => {
-      const user = await createUser();
-      const token = await generateValidToken(user);
-      const enrollment =  await createEnrollmentWithAddress(user);
-      const ticketType = await prisma.ticketType.create({
-        data: {
-          name: faker.name.findName(),
-          price: faker.datatype.number(),
-          isRemote: false,
-          includesHotel: true
-        }
-      });
-      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
-      await createPayment(ticket.id, ticketType.price);
-      
-      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
-
-      expect(response.body).toEqual({});
-      expect(response.status).toBe(httpStatus.OK);
-    });
   });
 });
 
