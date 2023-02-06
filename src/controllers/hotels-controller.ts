@@ -11,11 +11,11 @@ export async function getAllHotels(req: AuthenticatedRequest, res: Response) {
 
     return res.status(httpStatus.OK).send(hotels);
   } catch (error) {
-    if(error.name === "notFoundError") {
+    if(error.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
     if (error.name === "CannotFindAValidTicketToGetHotel") {
-      return res.status(httpStatus.PAYMENT_REQUIRED).send(error);
+      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
     }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
@@ -30,7 +30,7 @@ export async function getHotelById(req: AuthenticatedRequest, res: Response) {
 
     return res.status(httpStatus.OK).send(hotel);
   } catch (error) {
-    if(error.name === "notFoundError") {
+    if(error.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
     if (error.name === "CannotFindAValidTicketToGetHotel") {

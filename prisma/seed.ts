@@ -16,60 +16,6 @@ async function main() {
     });
   }
 
-  let ticketType = await prisma.ticketType.findFirst();
-  if (!ticketType) {
-    ticketType = await prisma.ticketType.create({
-      data: {
-        "name": "tipo1",         
-        "price": 22,         
-        "isRemote": true,      
-        "includesHotel": true 
-      }
-    })
-  }
-
-  let user = await prisma.user.findFirst();
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        "email": "lulu@gmail.com",
-        "password": "123456"
-      }
-    })
-  }
-
-  let enrollment = await prisma.enrollment.findFirst();
-  if (!enrollment) {
-    enrollment = await prisma.enrollment.create({
-      data: {
-        "name": "lulu",
-        "cpf": "77876066496",
-        "birthday": "2023-01-30T01:59:14.048Z",
-        "phone": "(21)98559-9999",
-        "userId": 1,
-        "createdAt": new Date(),
-        "updatedAt": new Date()
-      }
-    })
-  }
-
-  let address = await prisma.address.findFirst();
-  if (!address) {
-    address = await prisma.address.create({
-      data: {
-        "cep": "87020-260",
-        "street": "Rua Secreta",
-        "city": "Corococo",
-        "state": "PR",
-        "number": "1001",
-        "neighborhood": "nada",
-        "enrollmentId": 1,
-        "createdAt": new Date(),
-        "updatedAt": new Date()
-      }
-    })
-  }
-
   console.log({ event });
 }
 
