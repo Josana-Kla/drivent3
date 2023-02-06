@@ -34,7 +34,7 @@ export async function getHotelById(req: AuthenticatedRequest, res: Response) {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
     if (error.name === "CannotFindAValidTicketToGetHotel") {
-      return res.status(httpStatus.PAYMENT_REQUIRED);
+      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
     }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }

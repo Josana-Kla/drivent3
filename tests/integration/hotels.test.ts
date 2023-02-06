@@ -214,6 +214,71 @@ describe("GET /hotels/:hotelId", () => {
       expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
+    it("should respond with status 404 when hotelId isn't exists for given user", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment =  await createEnrollmentWithAddress(user);
+      const ticketType = await prisma.ticketType.create({
+        data: {
+          name: faker.name.findName(),
+          price: faker.datatype.number(),
+          isRemote: false,
+          includesHotel: true
+        }
+      });
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createPayment(ticket.id, ticketType.price);
+      const hotel = await prisma.hotel.create({
+        data: {
+          name: faker.name.findName(),
+          image: faker.image.imageUrl(),
+        }
+      });
+      
+      const response = await server.get("/hotels/0").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+
+    it("should respond with status 402 when ticket isn't paid for given user", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment =  await createEnrollmentWithAddress(user);
+      const ticketType = await prisma.ticketType.create({
+        data: {
+          name: faker.name.findName(),
+          price: faker.datatype.number(),
+          isRemote: false,
+          includesHotel: true
+        }
+      });
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
+      
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 402 when ticket is remote for given user", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment =  await createEnrollmentWithAddress(user);
+      const ticketType = await prisma.ticketType.create({
+        data: {
+          name: faker.name.findName(),
+          price: faker.datatype.number(),
+          isRemote: true,
+          includesHotel: false
+        }
+      });
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createPayment(ticket.id, ticketType.price);
+      
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
     it("should respond with status 200 and a hotel list with rooms when hotel exists for given user", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -245,7 +310,7 @@ describe("GET /hotels/:hotelId", () => {
       
       const response = await server.get(`/hotels/${hotel.id}`).set("Authorization", `Bearer ${token}`);
 
-      expect(response.body).toEqual(expect.arrayContaining([expect.objectContaining(
+      expect(response.body).toEqual(
         {
           id: hotel.id,
           name: hotel.name,
@@ -263,7 +328,7 @@ describe("GET /hotels/:hotelId", () => {
             })
           ])
         }
-      )]));
+      );
       expect(response.status).toBe(httpStatus.OK);
     });
 
@@ -290,7 +355,7 @@ describe("GET /hotels/:hotelId", () => {
       
       const response = await server.get(`/hotels/${hotel.id}`).set("Authorization", `Bearer ${token}`);
 
-      expect(response.body).toEqual(expect.arrayContaining([expect.objectContaining(
+      expect(response.body).toEqual(
         {
           id: hotel.id,
           name: hotel.name,
@@ -299,7 +364,7 @@ describe("GET /hotels/:hotelId", () => {
           updatedAt: hotel.updatedAt.toISOString(),
           Rooms: []
         }
-      )]));
+      );
       expect(response.status).toBe(httpStatus.OK);
     });
 
@@ -320,7 +385,7 @@ describe("GET /hotels/:hotelId", () => {
       
       const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
 
-      expect(response.body).toEqual([]);
+      expect(response.body).toEqual({});
       expect(response.status).toBe(httpStatus.OK);
     });
   });
